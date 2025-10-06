@@ -3,6 +3,7 @@
 #include "esphome/core/log.h"
 #include "esphome/components/climate/climate.h"
 #include "esphome/components/sensor/sensor.h"
+#include "esphome/components/button/button.h"
 
 #include "IRremoteESP8266.h"
 #include "IRsend.h"
@@ -21,6 +22,8 @@ class HaierClimate : public climate::Climate {
  public:
   void set_sensor(sensor::Sensor *sensor);
   void init(sensor::Sensor *sensor, uint16_t pin);
+  void send_display_toggle();  // Method for display switch to call
+  IRHaierACYRW02 *get_ac() { return ac_; }  // Getter for AC object
  
  protected:
   IRHaierACYRW02 *ac_{nullptr};
@@ -31,6 +34,16 @@ class HaierClimate : public climate::Climate {
   climate::ClimateTraits traits() override;
   void control(const climate::ClimateCall &call) override;
 
+};
+
+// Display light button component
+class HaierDisplayButton : public button::Button {
+ public:
+  void set_climate_parent(HaierClimate *parent) { this->parent_ = parent; }
+  void press_action() override;
+
+ protected:
+  HaierClimate *parent_{nullptr};
 };
 
 }  // namespace haier_acyrw02

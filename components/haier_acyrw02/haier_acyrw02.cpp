@@ -5,6 +5,13 @@ namespace haier_acyrw02 {
 
 static const char *const TAG = "climate.haier_acyrw02";
 
+// Raw IR command for display light toggle (captured from actual remote)
+// Command: A6.62.06.00.76.60.00.20.00.00.00.00.15
+const uint8_t kHaierDisplayToggleCommand[] = {
+  0xA6, 0x62, 0x06, 0x00, 0x76, 0x60, 0x00, 0x20,
+  0x00, 0x00, 0x00, 0x00, 0x15
+};
+
 void HaierClimate::init(sensor::Sensor *sensor, uint16_t pin) {
   this->set_sensor(sensor);
   ac_ = new IRHaierACYRW02(pin);
@@ -124,6 +131,31 @@ void HaierClimate::control(const climate::ClimateCall &call) {
 
   ESP_LOGD("DEBUG", "Haier A/C remote is in the following state:");
   ESP_LOGD("DEBUG", "  %s\n", ac_->toString().c_str());
+}
+
+void HaierClimate::send_display_toggle() {
+  if (ac_ == nullptr) {
+    ESP_LOGW(TAG, "AC not initialized, cannot send display toggle");
+    return;
+  }
+
+  // Send the exact raw command captured from the physical remote
+  ac_->setRaw(kHaierDisplayToggleCommand);
+  ac_->send();
+
+  ESP_LOGD(TAG, "Sent display light toggle command (raw): A6.62.06.00.76.60.00.20.00.00.00.00.15");
+}
+
+void HaierDisplayButton::press_action() {
+  if (this->parent_ == nullptr) {
+    ESP_LOGW(TAG, "Display button has no parent climate component");
+    return;
+  }
+
+  // Send the toggle command to the AC
+  this->parent_->send_display_toggle();
+
+  ESP_LOGD(TAG, "Display button pressed - sent toggle command");
 }
 
 }  // namespace haier_acyrw02

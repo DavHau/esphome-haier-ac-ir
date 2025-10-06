@@ -1,0 +1,22 @@
+# Example ESPHome configuration with display light control
+
+sensor:
+  # External temperature sensor from Home Assistant
+  - platform: homeassistant
+    id: current_temperature
+    entity_id: sensor.room_temperature
+
+climate:
+  - platform: haier_acyrw02
+    id: haier_climate  # Give it an ID so the button can reference it
+    sensor_id: current_temperature
+    pin: 3  # Pin with IR LED
+    name: "AC Haier"
+
+button:
+  # Display light toggle button - references the climate component
+  - platform: haier_display
+    climate_id: haier_climate
+    name: "AC Display Toggle"
+    icon: "mdi:television"
+    # Note: This sends a toggle command to turn display on/off

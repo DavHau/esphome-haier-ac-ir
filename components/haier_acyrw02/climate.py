@@ -4,10 +4,9 @@ from esphome.components import climate, sensor
 from esphome.const import CONF_ID, CONF_SENSOR_ID, CONF_PIN
 from esphome.core import CORE
 
-AUTO_LOAD = ["climate"]
+from . import haier_acyrw02_ns, HaierClimate
 
-haier_acyrw02_ns = cg.esphome_ns.namespace("haier_acyrw02")
-HaierClimate = haier_acyrw02_ns.class_("HaierClimate", climate.Climate)
+AUTO_LOAD = ["climate"]
 
 CONFIG_SCHEMA = climate.CLIMATE_SCHEMA.extend(
     {
